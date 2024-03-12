@@ -1,4 +1,4 @@
-import { Code, Container, Stack, Text } from '@mantine/core';
+import { Alert, Code, Container, Stack, Text } from '@mantine/core';
 import { Prism } from '@mantine/prism';
 import { PrismScrollArea } from '../base/PrismScrollArea';
 import { HomeCard } from './HomeCard';
@@ -88,10 +88,16 @@ class Trader:
         <HomeCard title="Welcome!">
           {/* prettier-ignore */}
           <Text>
-            IMC Prosperity Visualizer is a visualizer for <a href={`https://prosperity.imc.com/`} target="_blank" rel="noreferrer">IMC Prosperity</a> algorithms.
+            IMC Prosperity Visualizer is a visualizer for <a href={`https://prosperity.imc.com/`} target="_blank" rel="noreferrer">IMC Prosperity 1</a> algorithms.
             Its source code is available in the <a href={`https://github.com/jmerle/imc-prosperity-visualizer`} target="_blank" rel="noreferrer">jmerle/imc-prosperity-visualizer</a> GitHub repository.
             Load an algorithm below to get started.
           </Text>
+
+          {/* prettier-ignore */}
+          <Alert color="orange" mt="sm">
+            Please note that this visualizer only supports IMC Prosperity 1 algorithms.
+            See the <a href="https://jmerle.github.io/imc-prosperity-2-visualizer/" target="_blank" rel="noreferrer">IMC Prosperity 2 Visualizer</a> by the same author for IMC Prosperity 2 algorithms.
+          </Alert>
         </HomeCard>
 
         <HomeCard title="Prerequisites">
