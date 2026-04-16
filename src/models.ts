@@ -118,3 +118,24 @@ export interface CompressedSandboxLogRow {
   orders: CompressedOrder[];
   logs: string;
 }
+
+export interface TimestampLogRow {
+  sandboxLog: string;
+  lambdaLog: string;
+  timestamp: number;
+}
+export interface PerformanceLogs {
+  submissionId: string;
+  activitiesLog: ActivityLogRow[];
+  logs: TimestampLogRow[];
+  tradeHistory: P4TRADE[];
+}
+export interface P4TRADE {
+  timestamp: number;
+  buyer: string;
+  seller: string;
+  symbol: string;
+  currency: string;
+  price: number;
+  quantity: number;
+}

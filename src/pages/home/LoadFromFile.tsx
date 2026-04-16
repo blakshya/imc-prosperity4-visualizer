@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../store';
-import { parseAlgorithmLogs } from '../../utils/algorithm';
+import { parseAlgorithmLogs, parseYear4AlgorithmLogs } from '../../utils/algorithm';
 import { useAsync } from '../../utils/async';
 import { ErrorAlert } from './ErrorAlert';
 import { HomeCard } from './HomeCard';
@@ -37,7 +37,11 @@ export function LoadFromFile(): JSX.Element {
 
         reader.addEventListener('load', () => {
           try {
-            setAlgorithm(parseAlgorithmLogs(reader.result as string));
+            const content = reader.result as string;
+            const algorithm = content.trimStart().startsWith('{')
+              ? parseYear4AlgorithmLogs(content)
+              : parseAlgorithmLogs(content);
+            setAlgorithm(algorithm);
             navigate('/visualizer');
             resolve();
           } catch (err: any) {

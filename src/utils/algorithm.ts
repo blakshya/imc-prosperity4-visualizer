@@ -217,6 +217,93 @@ function getSubmissionLogs(logLines: string[]): string {
   return lines.join('\n').trimEnd();
 }
 
+export function parseYear4AlgorithmLogs(raw: string): Algorithm {
+  const data = JSON.parse(raw);
+
+  const activityLogs: ActivityLogRow[] = data.activitiesLog
+    .split('\n')
+    .filter((l: string) => l.trim() !== '' && l.split(';').length >= 17)
+    .slice(1)
+    .map((line: string) => {
+      const cols = line.split(';');
+      return {
+        day: Number(cols[0]),
+        timestamp: Number(cols[1]),
+        product: cols[2],
+        bidPrices: getColumnValues(cols, [3, 5, 7]),
+        bidVolumes: getColumnValues(cols, [4, 6, 8]),
+        askPrices: getColumnValues(cols, [9, 11, 13]),
+        askVolumes: getColumnValues(cols, [10, 12, 14]),
+        midPrice: Number(cols[15]),
+        profitLoss: Number(cols[16]),
+      };
+    });
+
+  function remapTrades(rawTrades: any[][]): Record<ProsperitySymbol, Trade[]> {
+    const result: Record<ProsperitySymbol, Trade[]> = {};
+    for (const t of rawTrades) {
+      if (!result[t[0]]) result[t[0]] = [];
+      result[t[0]].push({ symbol: t[0], price: t[1], quantity: t[2], buyer: t[3], seller: t[4], timestamp: t[5] });
+    }
+    return result;
+  }
+
+  const sandboxLogs: SandboxLogRow[] = [];
+  for (let i = 0; i < data.logs.length; i++) {
+    const tick = data.logs[i];
+    let parsed: any;
+    try {
+      parsed = JSON.parse(tick.lambdaLog);
+    } catch (e) {
+      console.warn(`Skipped malformed lambdaLog at tick index ${i} (ts=${tick.timestamp}):`, e);
+      continue;
+    }
+
+    const stateArr = parsed[0];
+    const ordersArr = parsed[1];
+    const logsStr = parsed[4] ?? '';
+
+    const listings: Record<ProsperitySymbol, Listing> = {};
+    for (const l of stateArr[2]) {
+      listings[l[0]] = { symbol: l[0], product: l[1], denomination: l[2] };
+    }
+
+    const rawOd = stateArr[3];
+    if (typeof rawOd !== 'object' || rawOd === null) {
+      throw new Error(`Tick ${i}: order_depths is not an object`);
+    }
+    const order_depths: Record<ProsperitySymbol, OrderDepth> = {};
+    for (const [sym, sides] of Object.entries(rawOd as Record<string, any[]>)) {
+      if (!Array.isArray(sides) || sides.length !== 2) {
+        throw new Error(`Tick ${i}: order_depths[${sym}] malformed`);
+      }
+      order_depths[sym] = { buy_orders: sides[0], sell_orders: sides[1] };
+    }
+
+    const state: TradingState = {
+      timestamp: stateArr[0],
+      listings,
+      order_depths,
+      own_trades: remapTrades(stateArr[4] ?? []),
+      market_trades: remapTrades(stateArr[5] ?? []),
+      position: stateArr[6] ?? {},
+      observations: {},
+    };
+
+    sandboxLogs.push({
+      state,
+      orders: decompressOrders(ordersArr),
+      logs: logsStr,
+    });
+  }
+
+  if (activityLogs.length === 0 || sandboxLogs.length === 0) {
+    throw new Error('Year 4 log parsed to empty — check file format.');
+  }
+
+  return { activityLogs, sandboxLogs, submissionLogs: '' };
+}
+
 export function parseAlgorithmLogs(logs: string, summary?: AlgorithmSummary): Algorithm {
   const logLines = logs.trim().split('\n');
 
