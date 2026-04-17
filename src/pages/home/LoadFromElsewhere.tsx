@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useStore } from '../../store';
-import { parseAlgorithmLogs } from '../../utils/algorithm';
+import { parseYear4AlgorithmLogs } from '../../utils/algorithm';
 import { useAsync } from '../../utils/async';
 import { ErrorAlert } from './ErrorAlert';
 import { HomeCard } from './HomeCard';
@@ -23,8 +23,8 @@ export function LoadFromElsewhere(): JSX.Element {
   const searchParams = useSearchParams()[0];
 
   const loadAlgorithm = useAsync(async (logsUrl: string): Promise<void> => {
-    const logsResponse = await axios.get(logsUrl);
-    setAlgorithm(parseAlgorithmLogs(logsResponse.data));
+    const logsResponse = await axios.get(logsUrl, { responseType: 'text' });
+    setAlgorithm(parseYear4AlgorithmLogs(logsResponse.data));
     navigate(`/visualizer?open=${logsUrl}`);
   });
 

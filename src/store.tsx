@@ -1,18 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Algorithm, Theme } from './models';
+import { P4Algorithm, Theme } from './models';
 
 export interface State {
   theme: Theme;
   idToken: string;
   round: string;
 
-  algorithm: Algorithm | null;
+  algorithm: P4Algorithm | null;
 
   setTheme: (theme: Theme) => void;
   setIdToken: (idToken: string) => void;
   setRound: (round: string) => void;
-  setAlgorithm: (algorithm: Algorithm | null) => void;
+  setAlgorithm: (algorithm: P4Algorithm | null) => void;
 }
 
 export const useStore = create(

@@ -1,10 +1,10 @@
-import { SandboxLogRow } from '../../models';
+import { P4Order } from '../../models';
 import { getAskColor, getBidColor } from '../../utils/colors';
 import { formatNumber } from '../../utils/format';
 import { SimpleTable } from './SimpleTable';
 
 export interface OrderTableProps {
-  orders: SandboxLogRow['orders'];
+  orders: Record<string, P4Order[]>;
 }
 
 export function OrderTable({ orders }: OrderTableProps): JSX.Element {

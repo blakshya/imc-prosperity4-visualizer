@@ -1,11 +1,11 @@
 import { Table, Text } from '@mantine/core';
-import { OrderDepth } from '../../models';
+import { P4OrderDepth } from '../../models';
 import { getAskColor, getBidColor } from '../../utils/colors';
 import { formatNumber } from '../../utils/format';
 import { OrderDepthTableSpreadRow } from './OrderDepthTableSpreadRow';
 
 export interface OrderDepthTableProps {
-  orderDepth: OrderDepth;
+  orderDepth: P4OrderDepth;
 }
 
 export function OrderDepthTable({ orderDepth }: OrderDepthTableProps): JSX.Element {

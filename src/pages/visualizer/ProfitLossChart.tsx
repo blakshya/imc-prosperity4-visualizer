@@ -6,7 +6,7 @@ export function ProfitLossChart(): JSX.Element {
   const algorithm = useStore(state => state.algorithm)!;
 
   const dataByTimestamp = new Map<number, number>();
-  for (const row of algorithm.activityLogs) {
+  for (const row of algorithm.activityRows) {
     if (!dataByTimestamp.has(row.timestamp)) {
       dataByTimestamp.set(row.timestamp, row.profitLoss);
     } else {
@@ -18,29 +18,19 @@ export function ProfitLossChart(): JSX.Element {
     {
       type: 'line',
       name: 'Total',
-      data: [...dataByTimestamp.keys()].map(timestamp => [timestamp, dataByTimestamp.get(timestamp)]),
+      data: [...dataByTimestamp.keys()].map(ts => [ts, dataByTimestamp.get(ts)]),
     },
   ];
 
-  Object.keys(algorithm.sandboxLogs[0].state.listings)
-    .filter(key => algorithm.sandboxLogs[0].state.observations[key] === undefined)
-    .sort((a, b) => a.localeCompare(b))
-    .forEach(symbol => {
-      const data = [];
-
-      for (const row of algorithm.activityLogs) {
-        if (row.product === symbol) {
-          data.push([row.timestamp, row.profitLoss]);
-        }
+  for (const sym of algorithm.symbols) {
+    const data: [number, number][] = [];
+    for (const row of algorithm.activityRows) {
+      if (row.product === sym) {
+        data.push([row.timestamp, row.profitLoss]);
       }
-
-      series.push({
-        type: 'line',
-        name: symbol,
-        data,
-        dashStyle: 'Dash',
-      });
-    });
+    }
+    series.push({ type: 'line', name: sym, data, dashStyle: 'Dash' });
+  }
 
   return <Chart title="Profit / Loss" series={series} />;
 }

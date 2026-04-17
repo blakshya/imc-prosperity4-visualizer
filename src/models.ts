@@ -2,134 +2,14 @@ import { ColorScheme } from '@mantine/core';
 
 export type Theme = ColorScheme | 'system';
 
-export interface UserSummary {
-  id: number;
-  firstName: string;
-  lastName: string;
-}
-
-export interface AlgorithmSummary {
-  id: string;
-  content: string;
-  fileName: string;
-  round: string;
-  selectedForRound: boolean;
-  status: string;
-  teamId: string;
-  timestamp: string;
-  user: UserSummary;
-}
-
-export type Time = number;
-export type ProsperitySymbol = string;
-export type Product = string;
-export type Position = number;
-export type UserId = string;
-export type Observation = number;
-
-export interface ActivityLogRow {
-  day: number;
-  timestamp: number;
-  product: Product;
-  bidPrices: number[];
-  bidVolumes: number[];
-  askPrices: number[];
-  askVolumes: number[];
-  midPrice: number;
-  profitLoss: number;
-}
-
-export interface Listing {
-  symbol: ProsperitySymbol;
-  product: Product;
-  denomination: Product;
-}
-
-export interface Order {
-  symbol: ProsperitySymbol;
-  price: number;
-  quantity: number;
-}
-
-export interface OrderDepth {
-  buy_orders: Record<number, number>;
-  sell_orders: Record<number, number>;
-}
-
-export interface Trade {
-  symbol: ProsperitySymbol;
-  price: number;
-  quantity: number;
-  buyer: UserId;
-  seller: UserId;
-  timestamp: Time;
-}
-
-export interface TradingState {
-  timestamp: Time;
-  listings: Record<ProsperitySymbol, Listing>;
-  order_depths: Record<ProsperitySymbol, OrderDepth>;
-  own_trades: Record<ProsperitySymbol, Trade[]>;
-  market_trades: Record<ProsperitySymbol, Trade[]>;
-  position: Record<Product, Position>;
-  observations: Record<Product, Observation>;
-}
-
-export interface SandboxLogRow {
-  state: TradingState;
-  orders: Record<ProsperitySymbol, Order[]>;
-  logs: string;
-}
-
-export interface Algorithm {
-  summary?: AlgorithmSummary;
-  activityLogs: ActivityLogRow[];
-  sandboxLogs: SandboxLogRow[];
-  submissionLogs: string;
-}
-
-export type CompressedListing = [symbol: ProsperitySymbol, product: Product, denomination: Product];
-
-export type CompressedOrderDepth = [buy_orders: Record<number, number>, sell_orders: Record<number, number>];
-
-export type CompressedTrade = [
-  symbol: ProsperitySymbol,
-  buyer: UserId,
-  seller: UserId,
-  price: number,
-  quantity: number,
-  timestamp: Time,
-];
-
-export interface CompressedTradingState {
-  t: Time;
-  l: CompressedListing[];
-  od: Record<ProsperitySymbol, CompressedOrderDepth>;
-  ot: CompressedTrade[];
-  mt: CompressedTrade[];
-  p: Record<Product, Position>;
-  o: Record<Product, Observation>;
-}
-
-export type CompressedOrder = [symbol: ProsperitySymbol, price: number, quantity: number];
-
-export interface CompressedSandboxLogRow {
-  state: CompressedTradingState;
-  orders: CompressedOrder[];
-  logs: string;
-}
+// ── Raw file types (kept for parser use) ────────────────────────────────────
 
 export interface TimestampLogRow {
   sandboxLog: string;
   lambdaLog: string;
   timestamp: number;
 }
-export interface PerformanceLogs {
-  submissionId: string;
-  activitiesLog: ActivityLogRow[];
-  logs: TimestampLogRow[];
-  tradeHistory: P4TRADE[];
-}
+
 export interface P4TRADE {
   timestamp: number;
   buyer: string;
@@ -138,4 +18,87 @@ export interface P4TRADE {
   currency: string;
   price: number;
   quantity: number;
+}
+
+// ── P4 domain types (mirror datamodel.py) ───────────────────────────────────
+
+export interface P4ConversionObservation {
+  bidPrice: number;
+  askPrice: number;
+  transportFees: number;
+  exportTariff: number;
+  importTariff: number;
+  sugarPrice: number;
+  sunlightIndex: number;
+}
+
+export interface P4Observation {
+  plain: Record<string, number>;
+  conversions: Record<string, P4ConversionObservation>;
+}
+
+export interface P4Listing {
+  symbol: string;
+  product: string;
+  denomination: string;
+}
+
+export interface P4Order {
+  symbol: string;
+  price: number;
+  quantity: number;
+}
+
+export interface P4OrderDepth {
+  buy_orders: Record<number, number>;
+  sell_orders: Record<number, number>;
+}
+
+export interface P4InTickTrade {
+  symbol: string;
+  price: number;
+  quantity: number;
+  buyer: string;
+  seller: string;
+  timestamp: number;
+}
+
+export interface P4TradingState {
+  timestamp: number;
+  listings: Record<string, P4Listing>;
+  order_depths: Record<string, P4OrderDepth>;
+  own_trades: Record<string, P4InTickTrade[]>;
+  market_trades: Record<string, P4InTickTrade[]>;
+  position: Record<string, number>;
+  observations: P4Observation;
+}
+
+export interface P4Tick {
+  state: P4TradingState;
+  orders: Record<string, P4Order[]>;
+  conversions: number;
+  logs: string;
+}
+
+export interface P4ActivityRow {
+  day: number;
+  timestamp: number;
+  product: string;
+  bidPrices: number[];
+  bidVolumes: number[];
+  askPrices: number[];
+  askVolumes: number[];
+  midPrice: number;
+  profitLoss: number;
+}
+
+export interface P4Algorithm {
+  submissionId: string;
+  ticks: P4Tick[];
+  activityRows: P4ActivityRow[];
+  tradeHistory: P4TRADE[];
+  /** Pre-built O(1) lookup: ts → product → activity row */
+  activityByTsAndProduct: Record<number, Record<string, P4ActivityRow>>;
+  /** Sorted unique symbol list derived from ticks[0].state.listings */
+  symbols: string[];
 }

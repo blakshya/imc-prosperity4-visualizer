@@ -10,9 +10,10 @@ export interface ProfitLossTableProps {
 export function ProfitLossTable({ timestamp }: ProfitLossTableProps): JSX.Element {
   const algorithm = useStore(state => state.algorithm)!;
 
-  const rows: JSX.Element[] = algorithm.activityLogs
-    .filter(row => row.timestamp === timestamp)
-    .filter(row => algorithm.sandboxLogs[0].state.observations[row.product] === undefined)
+  const actAtTs = algorithm.activityByTsAndProduct[timestamp] ?? {};
+
+  const rows: JSX.Element[] = Object.values(actAtTs)
+    .filter(row => algorithm.symbols.includes(row.product))
     .sort((a, b) => a.product.localeCompare(b.product))
     .map(row => {
       let colorFunc: (alpha: number) => string = () => 'transparent';

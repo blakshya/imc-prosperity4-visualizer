@@ -1,8 +1,8 @@
-import { TradingState } from '../../models';
+import { P4Listing } from '../../models';
 import { SimpleTable } from './SimpleTable';
 
 export interface ListingTableProps {
-  listings: TradingState['listings'];
+  listings: Record<string, P4Listing>;
 }
 
 export function ListingTable({ listings }: ListingTableProps): JSX.Element {

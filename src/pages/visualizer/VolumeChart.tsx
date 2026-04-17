@@ -1,11 +1,10 @@
 import Highcharts from 'highcharts';
-import { ProsperitySymbol } from '../../models';
 import { useStore } from '../../store';
 import { getAskColor, getBidColor } from '../../utils/colors';
 import { Chart } from './Chart';
 
 export interface VolumeChartProps {
-  symbol: ProsperitySymbol;
+  symbol: string;
 }
 
 export function VolumeChart({ symbol }: VolumeChartProps): JSX.Element {
@@ -20,7 +19,7 @@ export function VolumeChart({ symbol }: VolumeChartProps): JSX.Element {
     { type: 'column', name: 'Ask 3', color: getAskColor(0.5), data: [] },
   ];
 
-  for (const row of algorithm.activityLogs) {
+  for (const row of algorithm.activityRows) {
     if (row.product !== symbol) {
       continue;
     }

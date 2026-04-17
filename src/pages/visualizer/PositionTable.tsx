@@ -1,10 +1,9 @@
-import { TradingState } from '../../models';
 import { getAskColor, getBidColor } from '../../utils/colors';
 import { formatNumber } from '../../utils/format';
 import { SimpleTable } from './SimpleTable';
 
 export interface PositionTableProps {
-  position: TradingState['position'];
+  position: Record<string, number>;
 }
 
 export function PositionTable({ position }: PositionTableProps): JSX.Element {

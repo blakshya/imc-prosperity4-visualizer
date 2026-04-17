@@ -1,10 +1,9 @@
 import Highcharts from 'highcharts';
-import { Product } from '../../models';
 import { useStore } from '../../store';
 import { Chart } from './Chart';
 
 export interface ObservationChartProps {
-  product: Product;
+  product: string;
 }
 
 export function ObservationChart({ product }: ObservationChartProps): JSX.Element {
@@ -14,7 +13,7 @@ export function ObservationChart({ product }: ObservationChartProps): JSX.Elemen
     {
       type: 'line',
       name: 'Value',
-      data: algorithm.sandboxLogs.map(row => [row.state.timestamp, row.state.observations[product]]),
+      data: algorithm.ticks.map(t => [t.state.timestamp, t.state.observations.plain[product] ?? null]),
     },
   ];
 

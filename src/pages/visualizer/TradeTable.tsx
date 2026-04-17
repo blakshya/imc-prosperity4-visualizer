@@ -1,10 +1,10 @@
-import { ProsperitySymbol, Trade } from '../../models';
+import { P4InTickTrade } from '../../models';
 import { getAskColor, getBidColor } from '../../utils/colors';
 import { formatNumber } from '../../utils/format';
 import { SimpleTable } from './SimpleTable';
 
 export interface TradeTableProps {
-  trades: Record<ProsperitySymbol, Trade[]>;
+  trades: Record<string, P4InTickTrade[]>;
 }
 
 export function TradeTable({ trades }: TradeTableProps): JSX.Element {

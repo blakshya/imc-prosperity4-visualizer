@@ -1,67 +1,38 @@
 import Highcharts from 'highcharts';
-import { Algorithm, ProsperitySymbol } from '../../models';
 import { useStore } from '../../store';
 import { Chart } from './Chart';
-
-function getLimit(algorithm: Algorithm, symbol: ProsperitySymbol): number {
-  const knownLimits: Record<string, number> = {
-    PEARLS: 20,
-    BANANAS: 20,
-    COCONUTS: 600,
-    PINA_COLADAS: 300,
-    DIVING_GEAR: 50,
-    BERRIES: 250,
-    BAGUETTE: 150,
-    DIP: 300,
-    UKULELE: 70,
-    PICNIC_BASKET: 70,
-  };
-
-  if (knownLimits[symbol] !== undefined) {
-    return knownLimits[symbol];
-  }
-
-  // This code will be hit when a new product is added to the competition and the visualizer isn't updated yet
-  // In that case the visualizer doesn't know the real limit yet, so we make a guess based on the algorithm's positions
-
-  const product = algorithm.sandboxLogs[0].state.listings[symbol].product;
-
-  const positions = algorithm.sandboxLogs.map(row => row.state.position[product] || 0);
-  const minPosition = Math.min(...positions);
-  const maxPosition = Math.max(...positions);
-
-  return Math.max(Math.abs(minPosition), maxPosition);
-}
 
 export function PositionChart(): JSX.Element {
   const algorithm = useStore(state => state.algorithm)!;
 
-  const symbols = Object.keys(algorithm.sandboxLogs[0].state.listings)
-    .filter(key => algorithm.sandboxLogs[0].state.observations[key] === undefined)
-    .sort((a, b) => a.localeCompare(b));
+  const { symbols, ticks } = algorithm;
 
+  // Derive position limit per symbol dynamically from observed positions
   const limits: Record<string, number> = {};
-  for (const symbol of symbols) {
-    limits[symbol] = getLimit(algorithm, symbol);
+  for (const sym of symbols) {
+    const positions = ticks.map(t => t.state.position[sym] ?? 0);
+    const max = Math.max(...positions.map(Math.abs));
+    limits[sym] = max > 0 ? max : 1;
   }
 
   const data: Record<string, [number, number][]> = {};
-  for (const symbol of symbols) {
-    data[symbol] = [];
+  for (const sym of symbols) {
+    data[sym] = [];
   }
 
-  for (const row of algorithm.sandboxLogs) {
-    for (const symbol of symbols) {
-      const position = row.state.position[symbol] || 0;
-      data[symbol].push([row.state.timestamp, (position / limits[symbol]) * 100]);
+  for (const tick of ticks) {
+    const ts = tick.state.timestamp;
+    for (const sym of symbols) {
+      const pos = tick.state.position[sym] ?? 0;
+      data[sym].push([ts, (pos / limits[sym]) * 100]);
     }
   }
 
-  const series: Highcharts.SeriesOptionsType[] = symbols.map(symbol => ({
+  const series: Highcharts.SeriesOptionsType[] = symbols.map(sym => ({
     type: 'line',
-    name: symbol,
-    data: data[symbol],
+    name: sym,
+    data: data[sym],
   }));
 
-  return <Chart title="Positions (% of limit)" series={series} min={-100} max={100} />;
+  return <Chart title="Positions (% of max observed)" series={series} min={-100} max={100} />;
 }
