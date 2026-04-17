@@ -94,8 +94,8 @@ export function PriceChart({ symbol }: PriceChartProps): JSX.Element {
       data: bidData,
       marker: { symbol: 'circle' },
       tooltip: {
-        pointFormatter() {
-          return `<b>Bid</b> price: ${this.y} vol: ${(this as any).custom?.vol}<br/>`;
+        pointFormatter(): string {
+          return `<b>Bid</b> price: ${(this as any).y} vol: ${(this as any).custom?.vol}<br/>`;
         },
       },
     } as any,
@@ -106,8 +106,8 @@ export function PriceChart({ symbol }: PriceChartProps): JSX.Element {
       data: askData,
       marker: { symbol: 'circle' },
       tooltip: {
-        pointFormatter() {
-          return `<b>Ask</b> price: ${this.y} vol: ${Math.abs((this as any).custom?.vol)}<br/>`;
+        pointFormatter(): string {
+          return `<b>Ask</b> price: ${(this as any).y} vol: ${Math.abs((this as any).custom?.vol)}<br/>`;
         },
       },
     } as any,
@@ -127,9 +127,9 @@ export function PriceChart({ symbol }: PriceChartProps): JSX.Element {
       data: ourOrderData,
       marker: { symbol: 'star', radius: 7 },
       tooltip: {
-        pointFormatter() {
+        pointFormatter(): string {
           const c = (this as any).custom;
-          return `<b>${c?.side}</b> price: ${this.y} qty: ${Math.abs(c?.qty)}<br/>`;
+          return `<b>${c?.side}</b> price: ${(this as any).y} qty: ${Math.abs(c?.qty)}<br/>`;
         },
       },
     } as any,
@@ -140,9 +140,9 @@ export function PriceChart({ symbol }: PriceChartProps): JSX.Element {
       data: ourFillData,
       marker: { symbol: 'cross', radius: 7, lineWidth: 2, lineColor: '#ff8c00' },
       tooltip: {
-        pointFormatter() {
+        pointFormatter(): string {
           const c = (this as any).custom;
-          return `<b>Fill</b> price: ${this.y} qty: ${c?.qty} B:${c?.buyer} S:${c?.seller}<br/>`;
+          return `<b>Fill</b> price: ${(this as any).y} qty: ${c?.qty} B:${c?.buyer} S:${c?.seller}<br/>`;
         },
       },
     } as any,
@@ -153,9 +153,9 @@ export function PriceChart({ symbol }: PriceChartProps): JSX.Element {
       data: mktBuyData,
       marker: { symbol: 'triangle', radius: 5 },
       tooltip: {
-        pointFormatter() {
+        pointFormatter(): string {
           const c = (this as any).custom;
-          return `<b>Mkt buy</b> price: ${this.y} qty: ${c?.qty} B:${c?.buyer} S:${c?.seller}<br/>`;
+          return `<b>Mkt buy</b> price: ${(this as any).y} qty: ${c?.qty} B:${c?.buyer} S:${c?.seller}<br/>`;
         },
       },
     } as any,
@@ -166,9 +166,9 @@ export function PriceChart({ symbol }: PriceChartProps): JSX.Element {
       data: mktSellData,
       marker: { symbol: 'triangle-down', radius: 5 },
       tooltip: {
-        pointFormatter() {
+        pointFormatter(): string {
           const c = (this as any).custom;
-          return `<b>Mkt sell</b> price: ${this.y} qty: ${c?.qty} B:${c?.buyer} S:${c?.seller}<br/>`;
+          return `<b>Mkt sell</b> price: ${(this as any).y} qty: ${c?.qty} B:${c?.buyer} S:${c?.seller}<br/>`;
         },
       },
     } as any,
