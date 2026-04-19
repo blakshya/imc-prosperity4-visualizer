@@ -155,7 +155,7 @@ export function Chart({ title, series, min, max }: ChartProps): JSX.Element {
 
   return (
     <VisualizerCard p={0}>
-      <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={options} immutable={true} />
+      <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={options} />
     </VisualizerCard>
   );
 }

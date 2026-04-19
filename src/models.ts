@@ -92,6 +92,44 @@ export interface P4ActivityRow {
   profitLoss: number;
 }
 
+export interface P4ScatterPoint {
+  x: number;
+  y: number;
+  custom?: Record<string, any>;
+}
+
+export interface P4PnlFit {
+  slope: number;
+  rSquared: number;
+}
+
+export interface P4PrecomputedSeries {
+  // PriceChart scatter
+  bidData: P4ScatterPoint[];
+  askData: P4ScatterPoint[];
+  // PriceChart lines
+  midData: [number, number][];
+  vwapData: [number, number][];
+  microData: [number, number][];
+  // PriceChart overlays
+  ourOrderData: P4ScatterPoint[];
+  ourFillData: P4ScatterPoint[];
+  mktBuyData: P4ScatterPoint[];
+  mktSellData: P4ScatterPoint[];
+  // VolumeChart — indices 0/1/2 = levels 1/2/3
+  bidVolumeSeries: [[number, number][], [number, number][], [number, number][]];
+  askVolumeSeries: [[number, number][], [number, number][], [number, number][]];
+  // OBIChart
+  obiData: [number, number][];
+  volData: [number, number][];
+  // PositionPnLChart
+  positionRawData: [number, number][];
+  pnlData: [number, number][];
+  pnlFit: P4PnlFit;
+  // PositionChart (% of max observed)
+  positionPctData: [number, number][];
+}
+
 export interface P4Algorithm {
   submissionId: string;
   ticks: P4Tick[];
@@ -101,4 +139,10 @@ export interface P4Algorithm {
   activityByTsAndProduct: Record<number, Record<string, P4ActivityRow>>;
   /** Sorted unique symbol list derived from ticks[0].state.listings */
   symbols: string[];
+  /** Pre-computed series data per symbol */
+  precomputed: Record<string, P4PrecomputedSeries>;
+  /** Total PnL across all symbols per timestamp */
+  totalPnlData: [number, number][];
+  /** O(1) tick lookup by timestamp */
+  tickByTimestamp: Map<number, P4Tick>;
 }

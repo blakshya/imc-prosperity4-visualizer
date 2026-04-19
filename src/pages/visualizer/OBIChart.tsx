@@ -12,23 +12,29 @@ import { VisualizerCard } from './VisualizerCard';
 function getThemeOptions(theme: (highcharts: typeof Highcharts) => void): Highcharts.Options {
   const highchartsMock = {
     _modules: {
-      'Core/Globals.js': { theme: null },
-      // 'Core/Defaults.js': { setOptions: () => {} },
+      'Core/Globals.js': {
+        theme: null,
+      },
+      'Core/Defaults.js': {
+        setOptions: () => {
+          // Do nothing
+        },
+      },
     },
   };
+
   theme(highchartsMock as any);
+
   return highchartsMock._modules['Core/Globals.js'].theme! as Highcharts.Options;
 }
 
-export function ProfitLossChart(): JSX.Element {
+export function OBIChart({ symbol }: { symbol: string }): JSX.Element {
   const algorithm = useStore(state => state.algorithm)!;
   const theme = useMantineTheme();
 
   const options = useMemo((): Highcharts.Options => {
-    const formatFit = (v: number): string => Number(v.toPrecision(4)).toString();
-    const getTooltipName = (name: string): string => name.replace(/ \(m=.*?, R²=.*?\)$/, '');
+    const { obiData, volData } = algorithm.precomputed[symbol];
     const themeOptions = theme.colorScheme === 'light' ? {} : getThemeOptions(HighchartsHighContrastDarkTheme);
-
     const chartOptions: Highcharts.Options = {
       chart: {
         animation: false,
@@ -39,55 +45,45 @@ export function ProfitLossChart(): JSX.Element {
         numberFormatter: formatNumber,
         events: { load: onChartLoad },
       },
-      title: { text: 'Profit / Loss' },
+      title: { text: `${symbol} (OBI / volatility)` },
       xAxis: {
         type: 'datetime',
         title: { text: 'Timestamp' },
         crosshair: { width: 1 },
         labels: { formatter: params => formatNumber(params.value as number) },
       },
-      yAxis: { opposite: false, allowDecimals: false },
-      tooltip: {
-        split: false,
-        shared: true,
-        outside: true,
-        formatter: function () {
-          const points = this.points ?? [];
-          const header = `<span style="font-size:10px">Timestamp: ${formatNumber(this.x as number)}</span><br/>`;
-          const lines = points.map(point => {
-            const cleanName = getTooltipName(point.series.name);
-            return `<span style="color:${point.color}">●</span> ${cleanName}: <b>${formatNumber(
-              point.y as number,
-            )}</b>`;
-          });
-          return `${header}${lines.join('<br/>')}`;
-        },
-      },
+      yAxis: [
+        { title: { text: 'OBI' }, min: -1, max: 1, opposite: false },
+        { title: { text: 'Volatility (σ)' }, opposite: true },
+      ],
+      tooltip: { split: false, shared: false, outside: true },
       legend: { enabled: true },
       rangeSelector: { enabled: false },
       navigator: { enabled: false },
       scrollbar: { enabled: false },
       series: [
         {
-          type: 'line' as const,
-          name: 'Total',
-          data: algorithm.totalPnlData,
+          type: 'line',
+          name: 'OBI',
+          yAxis: 0,
+          data: obiData,
+          turboThreshold: 0,
           dataGrouping: { enabled: false },
-        },
-        ...algorithm.symbols.map(sym => ({
-          type: 'line' as const,
-          name: `${sym} (m=${formatFit(algorithm.precomputed[sym].pnlFit.slope)}, R²=${formatFit(
-            algorithm.precomputed[sym].pnlFit.rSquared,
-          )})`,
-          data: algorithm.precomputed[sym].pnlData,
-          dashStyle: 'Dash' as const,
+          zones: [{ value: 0, color: '#e84393' }, { color: '#2ecc71' }],
+        } as any,
+        {
+          type: 'line',
+          name: 'Volatility',
+          yAxis: 1,
+          color: '#f39c12',
+          data: volData,
+          turboThreshold: 0,
           dataGrouping: { enabled: false },
-        })),
+        } as any,
       ],
     };
-
     return merge(themeOptions, chartOptions);
-  }, [algorithm, theme]);
+  }, [algorithm, symbol, theme]);
 
   return (
     <VisualizerCard p={0}>

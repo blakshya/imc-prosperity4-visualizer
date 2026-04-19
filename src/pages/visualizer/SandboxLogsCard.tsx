@@ -9,9 +9,7 @@ import { VisualizerCard } from './VisualizerCard';
 export function SandboxLogsCard(): JSX.Element {
   const algorithm = useStore(state => state.algorithm)!;
 
-  const { ticks } = algorithm;
-
-  const tickByTimestamp = new Map(ticks.map(t => [t.state.timestamp, t]));
+  const { ticks, tickByTimestamp } = algorithm;
 
   const timestampMin = ticks[0].state.timestamp;
   const timestampMax = ticks[ticks.length - 1].state.timestamp;

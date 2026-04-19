@@ -2,8 +2,10 @@ import { Center, createStyles, Grid, Title } from '@mantine/core';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useStore } from '../../store';
 import { formatNumber } from '../../utils/format';
+import { OBIChart } from './OBIChart';
 import { ObservationChart } from './ObservationChart';
 import { PositionChart } from './PositionChart';
+import { PositionPnLChart } from './PositionPnLChart';
 import { PriceChart } from './PriceChart';
 import { ProfitLossChart } from './ProfitLossChart';
 import { SandboxLogsCard } from './SandboxLogsCard';
@@ -44,13 +46,23 @@ export function VisualizerPage(): JSX.Element {
   const symbolColumns: JSX.Element[] = [];
   algorithm.symbols.forEach((symbol, i) => {
     symbolColumns.push(
-      <Grid.Col key={i * 2} xs={12} sm={6}>
+      <Grid.Col key={i * 4 + 0} xs={12} sm={6}>
         <PriceChart symbol={symbol} />
       </Grid.Col>,
     );
     symbolColumns.push(
-      <Grid.Col key={i * 2 + 1} xs={12} sm={6}>
+      <Grid.Col key={i * 4 + 1} xs={12} sm={6}>
         <VolumeChart symbol={symbol} />
+      </Grid.Col>,
+    );
+    symbolColumns.push(
+      <Grid.Col key={i * 4 + 2} xs={12} sm={6}>
+        <OBIChart symbol={symbol} />
+      </Grid.Col>,
+    );
+    symbolColumns.push(
+      <Grid.Col key={i * 4 + 3} xs={12} sm={6}>
+        <PositionPnLChart symbol={symbol} />
       </Grid.Col>,
     );
   });
