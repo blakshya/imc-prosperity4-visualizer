@@ -14,7 +14,7 @@ export function App(): JSX.Element {
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={{ colorScheme }}>
-      <BrowserRouter basename="/imc-prosperity-visualizer/">
+      <BrowserRouter basename="/imc-prosperity4-visualizer/">
         <Routes>
           <Route path="/" element={<Page />}>
             <Route path="/" element={<HomePage />} />
